@@ -98,13 +98,15 @@ public class Board {
                             }
                         }, 1000,1000);
                     }
-                    move(e.getKeyCode());
+                    userMove(e.getKeyCode());
                 }
             }
         });
     }
 
-    private void move(int direction) { // LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40
+    private void userMove(int direction) {
+        move(direction);
+
         boolean solved = true;
         for (int i = 0; i < height * width - 1; i++) {
             if (!board[i / height][i % width].getText().equals(String.valueOf(i + 1))) {
@@ -116,7 +118,9 @@ public class Board {
             t.cancel();
             t.purge();
         }
+    }
 
+    private void move(int direction) { // LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40
         switch (direction) {
             case LEFT:
                 if (j < 3) {
