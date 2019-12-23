@@ -18,7 +18,7 @@ public class Board {
     private int height;
     private int i, j;
     private boolean boardCreated = false;
-    private boolean started = false;
+    private boolean currentlyPlaying = false;
     private int time;
     private Timer t;
 
@@ -32,17 +32,60 @@ public class Board {
 
     private void setup() {
         frame = new JFrame("Sliding Puzzle");
-        frame.setLayout(new GridLayout(height, width));
         frame.getContentPane().setBackground(Color.BLACK);
 
+        setMenuBar();
+
+        newGame();
+        addMovementListeners();
+    }
+
+    private void setMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        frame.setJMenuBar(menuBar);
+
+        JMenu menuFile = new JMenu("File");
+        menuBar.add(menuFile);
+
+        JMenuItem newGameItem = new JMenuItem("New Game");
+        newGameItem.addActionListener(actionEvent -> newGame());
+        menuFile.add(newGameItem);
+
+        JMenuItem setSizeItem = new JMenuItem("Set Size");
+        setSizeItem.addActionListener(actionEvent -> setSize());
+        menuFile.add(setSizeItem);
+    }
+
+    private void setSize() {
+        JTextField widthField = new JTextField();
+        JTextField heightField = new JTextField();
+        Object[] size = {
+                "Width:", widthField,
+                "Height:", heightField
+        };
+        int option = JOptionPane.showConfirmDialog(frame, size, "Enter new size", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            this.width = Integer.parseInt(widthField.getText());
+            this.height = Integer.parseInt(heightField.getText());
+
+            newGame();
+        }
+    }
+
+    public void newGame() {
+        if (currentlyPlaying) {
+            frame.setTitle("Sliding Puzzle");
+            t.cancel();
+            t.purge();
+        }
+        frame.setLayout(new GridLayout(height, width));
         reset();
         scramble();
-        addListeners(frame);
     }
 
     private void reset() {
-        started = false;
-        if (boardCreated) {
+        currentlyPlaying = false;
+        if (boardCreated) { // If there is a board, remove it
             for (JLabel[] row : board) {
                 for (JLabel tile : row) {
                     frame.remove(tile);
@@ -52,7 +95,9 @@ public class Board {
         boardCreated = true;
         time = 0;
 
-        for (int i = 0; i < width * height - 1; i++) {
+        board = new JLabel[height][width];
+
+        for (int i = 0; i < width * height - 1; i++) { // Create tiles
             JLabel tile = createTile(i + 1);
             frame.add(tile);
             board[i / width][i % width] = tile;
@@ -70,6 +115,7 @@ public class Board {
     private JLabel createTile(int text) {
         JLabel tile = new JLabel(String.valueOf(text));
 
+        // Style
         tile.setFont(new Font(null, Font.PLAIN, 40));
         tile.setForeground(Color.LIGHT_GRAY);
         tile.setHorizontalAlignment(JLabel.CENTER);
@@ -78,95 +124,113 @@ public class Board {
         return tile;
     }
 
-    private void addListeners(JFrame frame) {
+    private void addMovementListeners() {
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == 82) { // r
-                    reset();
-                    scramble();
+                    newGame();
                 } else {
-                    if (!started) {
-                        started = true;
-                        t = new Timer( );
-                        t.scheduleAtFixedRate(new TimerTask() {
-
-                            @Override
-                            public void run() {
-                                time++;
-                                frame.setTitle("Sliding Puzzle - " + time);
-                            }
-                        }, 1000,1000);
+                    if (!currentlyPlaying) { // Start timer if game isnt running
+                        startTimer();
                     }
-                    userMove(e.getKeyCode());
+                    int direction = e.getKeyCode();
+                    if (legal(direction)) { // Move if legal
+                        move(direction);
+                    }
+                    checkSolved();
                 }
             }
         });
     }
 
-    private void userMove(int direction) {
-        move(direction);
+    private void startTimer() {
+        currentlyPlaying = true;
+        t = new Timer();
+        t.scheduleAtFixedRate(new TimerTask() {
 
+            @Override
+            public void run() {
+                time++;
+                frame.setTitle("Sliding Puzzle - " + time);
+            }
+        }, 1000,1000);
+    }
+
+    private void checkSolved() {
         boolean solved = true;
-        for (int i = 0; i < height * width - 1; i++) {
+        for (int i = 0; i < height * width - 1; i++) { // Check if all tiles are correct value
             if (!board[i / height][i % width].getText().equals(String.valueOf(i + 1))) {
                 solved = false;
                 break;
             }
         }
-        if (solved) {
+        if (solved) { // Stop timer
             t.cancel();
             t.purge();
         }
     }
 
     private void move(int direction) { // LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40
-        switch (direction) {
+        switch (direction) { // Swap text from target direction
             case LEFT:
-                if (j < 3) {
-                    board[i][j].setText(board[i][j + 1].getText());
-                    board[i][j + 1].setText("");
-                    j++;
-                }
+                board[i][j].setText(board[i][j + 1].getText());
+                board[i][j + 1].setText("");
+                j++;
                 break;
 
             case RIGHT:
-                if (j > 0) {
-                    board[i][j].setText(board[i][j - 1].getText());
-                    board[i][j - 1].setText("");
-                    j--;
-                }
+                board[i][j].setText(board[i][j - 1].getText());
+                board[i][j - 1].setText("");
+                j--;
                 break;
 
             case UP:
-                if (i < 3) {
-                    board[i][j].setText(board[i + 1][j].getText());
-                    board[i + 1][j].setText("");
-                    i++;
-                }
+                board[i][j].setText(board[i + 1][j].getText());
+                board[i + 1][j].setText("");
+                i++;
                 break;
 
             case DOWN:
-                if (i > 0) {
-                    board[i][j].setText(board[i - 1][j].getText());
-                    board[i - 1][j].setText("");
-                    i--;
-                }
+                board[i][j].setText(board[i - 1][j].getText());
+                board[i - 1][j].setText("");
+                i--;
                 break;
         }
     }
 
     private void scramble() {
-        int amount = 1000;
+        int amount = width * height * 20;
         Random rand = new Random();
         ArrayList<Integer> possible = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
-            if (this.j < 3) { possible.add(LEFT); }
-            if (this.j > 0) { possible.add(RIGHT); }
-            if (this.i < 3) { possible.add(UP); }
-            if (this.i > 0) { possible.add(DOWN); }
-            move(possible.get(rand.nextInt(possible.size())));
+            for (int direction = LEFT; direction <= DOWN; direction++) { // Find all legal directions
+                if (legal(direction)) { possible.add(direction); }
+            }
+            move(possible.get(rand.nextInt(possible.size()))); // Move in random legal direction
+            possible.clear();
         }
+    }
+
+    private boolean legal(int direction) {
+        switch (direction) {
+            case LEFT:
+                if (j < width - 1) { return true; }
+                break;
+
+            case RIGHT:
+                if (j > 0) { return true; }
+                break;
+
+            case UP:
+                if (i < height - 1) { return true; }
+                break;
+
+            case DOWN:
+                if (i > 0) { return true; }
+                break;
+        }
+        return false;
     }
 
     private void show() {
