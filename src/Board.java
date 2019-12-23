@@ -17,7 +17,6 @@ public class Board {
     private int width;
     private int height;
     private int i, j;
-    private boolean moving = false;
     private boolean boardCreated = false;
     private boolean started = false;
     private int time;
