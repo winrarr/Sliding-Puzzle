@@ -50,6 +50,7 @@ public class Board {
             }
         }
         boardCreated = true;
+        time = 0;
 
         for (int i = 0; i < width * height - 1; i++) {
             JLabel tile = createTile(i + 1);
@@ -81,7 +82,6 @@ public class Board {
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                //System.out.println(keyEvent.getKeyCode());
                 if (e.getKeyCode() == 82) { // r
                     reset();
                     scramble();
@@ -93,7 +93,8 @@ public class Board {
 
                             @Override
                             public void run() {
-                                setTime();
+                                time++;
+                                frame.setTitle("Sliding Puzzle - " + time);
                             }
                         }, 1000,1000);
                     }
@@ -102,9 +103,8 @@ public class Board {
             }
         });
     }
-    private void setTime() {
-        time++;
-        frame.setTitle("Sliding Puzzle - " + time);
+
+    private void move(int direction) { // LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40
         boolean solved = true;
         for (int i = 0; i < height * width - 1; i++) {
             if (!board[i / height][i % width].getText().equals(String.valueOf(i + 1))) {
@@ -116,9 +116,7 @@ public class Board {
             t.cancel();
             t.purge();
         }
-    }
 
-    private void move(int direction) { // LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40
         switch (direction) {
             case LEFT:
                 if (j < 3) {
