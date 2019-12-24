@@ -17,8 +17,10 @@ public class Board {
     private int width;
     private int height;
     private int i, j;
+
     private boolean boardCreated = false;
     private boolean currentlyPlaying = false;
+
     private int time;
     private Timer t;
 
@@ -40,76 +42,10 @@ public class Board {
         addMovementListeners();
     }
 
-    private void setMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
-        frame.setJMenuBar(menuBar);
-
-        JMenu menuFile = new JMenu("File");
-        menuBar.add(menuFile);
-
-        JMenuItem newGameItem = new JMenuItem("New Game");
-        newGameItem.addActionListener(actionEvent -> newGame());
-        menuFile.add(newGameItem);
-
-        JMenuItem setSizeItem = new JMenuItem("Set Size");
-        setSizeItem.addActionListener(actionEvent -> setSize());
-        menuFile.add(setSizeItem);
-    }
-
-    private void setSize() {
-        JTextField widthField = new JTextField();
-        JTextField heightField = new JTextField();
-        Object[] size = {
-                "Width:", widthField,
-                "Height:", heightField
-        };
-        int option = JOptionPane.showConfirmDialog(frame, size, "Enter new size", JOptionPane.OK_CANCEL_OPTION);
-        if (option == JOptionPane.OK_OPTION) {
-            this.width = Integer.parseInt(widthField.getText());
-            this.height = Integer.parseInt(heightField.getText());
-
-            newGame();
-        }
-    }
-
-    public void newGame() {
-        if (currentlyPlaying) {
-            frame.setTitle("Sliding Puzzle");
-            t.cancel();
-            t.purge();
-        }
-        frame.setLayout(new GridLayout(height, width));
-        reset();
-        scramble();
-    }
-
-    private void reset() {
-        currentlyPlaying = false;
-        if (boardCreated) { // If there is a board, remove it
-            for (JLabel[] row : board) {
-                for (JLabel tile : row) {
-                    frame.remove(tile);
-                }
-            }
-        }
-        boardCreated = true;
-        time = 0;
-
-        board = new JLabel[height][width];
-
-        for (int i = 0; i < width * height - 1; i++) { // Create tiles
-            JLabel tile = createTile(i + 1);
-            frame.add(tile);
-            board[i / width][i % width] = tile;
-        }
-
-        i = height - 1;
-        j = width - 1;
-
-        JLabel tile = createTile(0);
-        tile.setText("");
-        frame.add(tile);
-        board[i][j] = tile;
+    private void show() {
+        frame.pack();
+        frame.setSize(800, 800);
+        frame.setVisible(true);
     }
 
     private JLabel createTile(int text) {
@@ -169,6 +105,78 @@ public class Board {
             t.cancel();
             t.purge();
         }
+    }
+
+    private void setMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        frame.setJMenuBar(menuBar);
+
+        JMenu menuFile = new JMenu("File");
+        menuBar.add(menuFile);
+
+        JMenuItem newGameItem = new JMenuItem("New Game");
+        newGameItem.addActionListener(actionEvent -> newGame());
+        menuFile.add(newGameItem);
+
+        JMenuItem setSizeItem = new JMenuItem("Set Size");
+        setSizeItem.addActionListener(actionEvent -> setSize());
+        menuFile.add(setSizeItem);
+    }
+
+    private void setSize() {
+        JTextField widthField = new JTextField();
+        JTextField heightField = new JTextField();
+        Object[] size = {
+                "Width:", widthField,
+                "Height:", heightField
+        };
+        int option = JOptionPane.showConfirmDialog(frame, size, "Enter new size", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            this.width = Integer.parseInt(widthField.getText());
+            this.height = Integer.parseInt(heightField.getText());
+
+            newGame();
+        }
+    }
+
+    private void reset() {
+        currentlyPlaying = false;
+        if (boardCreated) { // If there is a board, remove it
+            for (JLabel[] row : board) {
+                for (JLabel tile : row) {
+                    frame.remove(tile);
+                }
+            }
+        }
+        boardCreated = true;
+        time = 0;
+
+        board = new JLabel[height][width];
+
+        for (int i = 0; i < width * height - 1; i++) { // Create tiles
+            JLabel tile = createTile(i + 1);
+            frame.add(tile);
+            board[i / width][i % width] = tile;
+        }
+
+        i = height - 1;
+        j = width - 1;
+
+        JLabel tile = createTile(0);
+        tile.setText("");
+        frame.add(tile);
+        board[i][j] = tile;
+    }
+
+    public void newGame() {
+        if (currentlyPlaying) {
+            frame.setTitle("Sliding Puzzle");
+            t.cancel();
+            t.purge();
+        }
+        frame.setLayout(new GridLayout(height, width));
+        reset();
+        scramble();
     }
 
     private void move(int direction) { // LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40
@@ -231,11 +239,5 @@ public class Board {
                 break;
         }
         return false;
-    }
-
-    private void show() {
-        frame.pack();
-        frame.setSize(800, 800);
-        frame.setVisible(true);
     }
 }
