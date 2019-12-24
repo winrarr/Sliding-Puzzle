@@ -104,6 +104,7 @@ public class Board {
         if (solved) { // Stop timer
             t.cancel();
             t.purge();
+            frame.setTitle("Sliding Puzzle (Solved) - " + time);
         }
     }
 
