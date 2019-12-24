@@ -34,7 +34,6 @@ public class Board {
 
     private void setup() {
         frame = new JFrame("Sliding Puzzle");
-        frame.getContentPane().setBackground(Color.BLACK);
 
         setMenuBar();
 
@@ -105,6 +104,8 @@ public class Board {
             t.cancel();
             t.purge();
             frame.setTitle("Sliding Puzzle (Solved) - " + time);
+            frame.getContentPane().setBackground(new Color(10, 40, 10));
+
         }
     }
 
@@ -175,6 +176,7 @@ public class Board {
             t.cancel();
             t.purge();
         }
+        frame.getContentPane().setBackground(Color.BLACK);
         frame.setLayout(new GridLayout(height, width));
         reset();
         scramble();
