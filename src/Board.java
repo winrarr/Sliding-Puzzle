@@ -48,18 +48,6 @@ public class Board {
         frame.setVisible(true);
     }
 
-    private JLabel createTile(int text) {
-        JLabel tile = new JLabel(String.valueOf(text));
-
-        // Style
-        tile.setFont(new Font(null, Font.PLAIN, 40));
-        tile.setForeground(Color.LIGHT_GRAY);
-        tile.setHorizontalAlignment(JLabel.CENTER);
-        tile.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-
-        return tile;
-    }
-
     private void addMovementListeners() {
         frame.addKeyListener(new KeyAdapter() {
             @Override
@@ -157,7 +145,7 @@ public class Board {
         board = new JLabel[height][width];
 
         for (int i = 0; i < width * height - 1; i++) { // Create tiles
-            JLabel tile = createTile(i + 1);
+            JLabel tile = new Tile(i + 1);
             frame.add(tile);
             board[i / width][i % width] = tile;
         }
@@ -165,7 +153,7 @@ public class Board {
         i = height - 1;
         j = width - 1;
 
-        JLabel tile = createTile(0);
+        JLabel tile = new Tile(0);
         tile.setText("");
         frame.add(tile);
         board[i][j] = tile;
