@@ -6,7 +6,7 @@ public class Tile extends JLabel {
         setText(String.valueOf(num));
 
         // Style
-        setFont(new Font(null,Font.PLAIN, 90));
+        setFont(new Font(null, Font.PLAIN, 70));
         setForeground(Color.LIGHT_GRAY);
         setHorizontalAlignment(JLabel.CENTER);
         setBorder(BorderFactory.createLineBorder(Color.GRAY));

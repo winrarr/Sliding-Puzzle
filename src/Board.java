@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.*;
@@ -55,7 +57,7 @@ public class Board {
                 if (e.getKeyCode() == 82) { // r
                     newGame();
                 } else {
-                    if (!currentlyPlaying) { // Start timer if game isnt running
+                    if (!currentlyPlaying) { // Start timer if game is not running
                         startTimer();
                     }
                     int direction = e.getKeyCode();
@@ -83,7 +85,7 @@ public class Board {
 
     private void checkSolved() {
         boolean solved = true;
-        for (int i = 0; i < height * width - 1; i++) { // Check if all tiles are correct value
+        for (int i = width * height - 2; i >=  0; i--) { // Check if all tiles are correct value
             if (!board[i / height][i % width].getText().equals(String.valueOf(i + 1))) {
                 solved = false;
                 break;
@@ -94,7 +96,6 @@ public class Board {
             t.purge();
             frame.setTitle("Sliding Puzzle (Solved) - " + time);
             frame.getContentPane().setBackground(new Color(10, 40, 10));
-
         }
     }
 
@@ -167,6 +168,7 @@ public class Board {
         }
         frame.getContentPane().setBackground(Color.BLACK);
         frame.setLayout(new GridLayout(height, width));
+
         reset();
         scramble();
     }
@@ -202,33 +204,27 @@ public class Board {
     private void scramble() {
         int amount = width * height * 20;
         Random rand = new Random();
-        ArrayList<Integer> possible = new ArrayList<>();
-        for (int i = 0; i < amount; i++) {
-            for (int direction = LEFT; direction <= DOWN; direction++) { // Find all legal directions
-                if (legal(direction)) { possible.add(direction); }
+
+        int counter = 0;
+        while (counter < amount) {
+            int direction = rand.nextInt(4) + 37;
+            if (legal(direction)) {
+                move(direction);
+                counter++;
             }
-            move(possible.get(rand.nextInt(possible.size()))); // Move in random legal direction
-            possible.clear();
         }
     }
 
     private boolean legal(int direction) {
         switch (direction) {
             case LEFT:
-                if (j < width - 1) { return true; }
-                break;
-
+                return j < width - 1;
             case RIGHT:
-                if (j > 0) { return true; }
-                break;
-
+                return j > 0;
             case UP:
-                if (i < height - 1) { return true; }
-                break;
-
+                return i < height - 1;
             case DOWN:
-                if (i > 0) { return true; }
-                break;
+                return i > 0;
         }
         return false;
     }
